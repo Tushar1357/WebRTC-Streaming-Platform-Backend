@@ -12,7 +12,7 @@ const streams = sequelize.define("Stream", {
     primaryKey: true,
   },
   streamKey: {
-    type: DataTypes.STRING,
+    type: DataTypes.UUID,
     allowNull: false,
     unique: true,
   },

@@ -2,6 +2,8 @@ const Stream = require("../../database/models/stream/stream.model");
 const { sendResponse } = require("../../utils/common");
 const { v4 } = require("uuid");
 
+
+//method to create stream
 const createStream = async (req, res) => {
   try {
     const { title, description, userId } = req.body;
@@ -36,12 +38,39 @@ const createStream = async (req, res) => {
   }
 };
 
+
+//method to edit stream
 const editStream = async (req, res) => {
   try{
   }
   catch (error) {
     console.log("Internal Server Error", error?.message);
     return sendResponse(res, 500, false, "Internal Server Error");
+  }
+}
+
+const getStreams = async (req, res) => {
+  try{
+    const {userId} = req.body;
+    if (!userId){
+      return sendResponse(res, 400, false, "Please enter userId");
+    }
+  }
+  catch (error) {
+    console.log("Internal Server Error", error?.message);
+    return sendResponse(res, 500, false, "Internal Server Error");
+  }
+}
+
+
+const deleteStream = async (req, res) => {
+  try{
+    const {userId} = req.body;
+    if (!userId){
+      return sendResponse(res, 400, false, "Please enter userId");
+    }
+    
+
   }
 }
 
