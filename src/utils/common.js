@@ -12,7 +12,7 @@ const sendResponse = (res, statusCode, status, message, data) => {
 
     res.json(msg)
   } catch (error) {
-    console.error("Error while sending resposne");
+    console.error("Error while sending resposne. Error:",error?.message);
   }
 };
 

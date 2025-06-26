@@ -1,10 +1,9 @@
 const express = require("express");
 const { sendResponse } = require("../../../utils/common");
+const { createStream } = require("../../../controllers/stream/stream.controller");
 
 const router = express.Router();
 
-router.get("/create", (req, res) => {
-  return sendResponse(res, 200, true, "Stream created...");
-});
+router.post("/create", createStream);
 
 module.exports = router;
