@@ -1,5 +1,6 @@
-const sequelize = require("../config/db")
-const Stream = require("./models/stream/stream.model")
+const sequelize = require("../config/db");
+const Stream = require("./models/Stream/stream.model");
+const User = require("./models/Users/users.model")
 
 const connect = async () => {
   try {
