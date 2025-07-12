@@ -60,14 +60,16 @@ const editStream = async (req, res) => {
   }
 };
 
-
 const getStreams = async (req, res) => {
   try {
-    const { id:userId } = req.user;
+    const { id: userId } = req.user;
     if (!userId) {
       return sendResponse(res, 400, false, "Please enter userId");
     }
-    const data = await Stream.findAll({ where: { userId } });
+    const data = await Stream.findAll({
+      where: { userId },
+      order: [["createdAt", "DESC"]],
+    });
     if (data.length === 0) {
       return sendResponse(res, 200, true, "No stream key found.");
     }
@@ -100,7 +102,12 @@ const deleteStream = async (req, res) => {
 
     const result = await Stream.destroy({ where: { streamKey, userId } });
     if (result === 0) {
-      return sendResponse(res, 400, false, "Stream not found or already deleted.");
+      return sendResponse(
+        res,
+        400,
+        false,
+        "Stream not found or already deleted."
+      );
     }
 
     return sendResponse(res, 200, true, "Stream deleted successfully.");
@@ -110,5 +117,30 @@ const deleteStream = async (req, res) => {
   }
 };
 
+const getStreamInfo = async (req, res) => {
+  try {
+    const { streamKey } = req.body;
+    if (!streamKey) {
+      return sendResponse(res, 400, false, "Please enter details.");
+    }
 
-module.exports = { createStream, getStreams,editStream, deleteStream };
+    const streamInfo = await Stream.findOne({ where: { streamKey } });
+
+    if (!streamInfo) {
+      return sendResponse(res, 400, false, "Invalid stream key");
+    }
+
+    const streamDetails = {
+      title: streamInfo.title,
+      description: streamInfo.description,
+      userId: streamInfo.userId,
+    };
+
+    return sendResponse(res, 200, true, "Stream details", { streamDetails });
+  } catch (error) {
+    console.log("Internal Server Error", error?.message);
+    return sendResponse(res, 500, false, "Internal Server Error");
+  }
+};
+
+module.exports = { createStream, getStreams, editStream, deleteStream,getStreamInfo };

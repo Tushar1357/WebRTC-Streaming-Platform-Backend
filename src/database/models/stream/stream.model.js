@@ -36,6 +36,11 @@ const streams = sequelize.define("Stream", {
     type: DataTypes.STRING,
     allowNull: true
   },
+  producerId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true
+  },
   startedAt: {
     type: DataTypes.DATE,
     allowNull: true

@@ -10,7 +10,7 @@ const create_user_schema = Joi.object({
 
 const verify_user_schema = Joi.object({
   email: Joi.string().email().required(),
-  password: Joi.string().min(6).required()
-})
+  password: Joi.string().min(6).required(),
+});
 
-module.exports = {create_user_schema,verify_user_schema};
+module.exports = { create_user_schema, verify_user_schema };

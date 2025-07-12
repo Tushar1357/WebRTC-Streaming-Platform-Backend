@@ -11,7 +11,7 @@ const password = process.env.DATABASE_PASSWORD;
 const sequelize = new Sequelize(database, username, password, {
   host: "localhost",
   dialect: "mysql",
-  logging: true,
+  logging: false,
 }); 
 
 

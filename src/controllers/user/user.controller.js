@@ -5,13 +5,12 @@ const { usernameExists, emailExists } = require("../../services/user.service");
 const { createToken } = require("../../utils/genereteToken");
 require('dotenv').config();
 
+
 const createUser = async (req, res) => {
   try {
     const { error, value } = create_user_schema.validate(req.body);
     if (error) {
-      return sendResponse(res, 400, false, "Error found.", {
-        error: error.details[0].message,
-      });
+      return sendResponse(res, 400, false, `Validation Error: ${error.details[0].message}`);
     }
     const { first_name, last_name, username, email, password } = value;
     const [usernameTaken, emailTaken] = await Promise.all([
@@ -55,9 +54,8 @@ const checkUser = async (req, res) => {
   try {
     const { error, value } = verify_user_schema.validate(req.body);
     if (error) {
-      return sendResponse(res, 400, false, "Validation error.", {
-        error: error.details[0].message,
-      });
+      return sendResponse(res, 400, false, `Validation Error: ${error.details[0].message}`);
+
     }
 
     const { email, password } = value;
