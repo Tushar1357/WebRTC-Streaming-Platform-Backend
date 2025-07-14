@@ -18,10 +18,7 @@ const handleConnections = (socket) => {
         case "join": {
           const { streamKey } = msg.data;
           socket.join(streamKey);
-          socket.to(streamKey).emit("sfu-message", {
-            action: "new_user_joined",
-            name: "Trial User",
-          });
+          console.log("A new user joined")
           break;
         }
 
@@ -65,9 +62,12 @@ const handleConnections = (socket) => {
             action: "produced",
             data: { producerId: producer.id },
           });
-
+          
           socket.to(msg.data.streamKey).emit("sfu-message", {
             action: "new_producer_joined",
+            data: {
+              producerId: producer.id
+            }
           });
           break;
         }
@@ -112,6 +112,8 @@ const handleConnections = (socket) => {
                 rtpCapabilities: msg.data.rtpCapabilities,
                 paused: false,
               });
+
+              console.log(consumer.kind)
 
               socket.emit("sfu-message", {
                 action: "consumed",
