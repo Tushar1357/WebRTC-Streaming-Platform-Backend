@@ -2,7 +2,12 @@ const {
   getRouters,
   createWebRtcTransport,
 } = require("../services/mediasoup.service");
-const { setStreamtoProducers, getProducersFromStream } = require("../utils/stream");
+const {
+  setUserProducers,
+  getUsersInStream,
+  getUserProducers,
+  addUserToStream,
+} = require("../utils/stream");
 
 const handleConnections = (socket) => {
   socket.on("sfu-message", async (raw) => {
@@ -18,7 +23,8 @@ const handleConnections = (socket) => {
         case "join": {
           const { streamKey } = msg.data;
           socket.join(streamKey);
-          console.log("A new user joined")
+          addUserToStream(streamKey, socket.id);
+          console.log(`User ${socket.id} joined stream ${streamKey}`);
           break;
         }
 
@@ -56,18 +62,18 @@ const handleConnections = (socket) => {
             return socket.emit("sfu-error", "Send transport not ready");
 
           const producer = await socket.sendTransport.produce(msg.data);
-          setStreamtoProducers(msg.data.streamKey, producer.id);
+          setUserProducers(socket.id, msg.data.streamKey, producer.id);
 
           socket.emit("sfu-message", {
             action: "produced",
             data: { producerId: producer.id },
           });
-          
+
           socket.to(msg.data.streamKey).emit("sfu-message", {
             action: "new_producer_joined",
             data: {
-              producerId: producer.id
-            }
+              userId: socket.id,
+            },
           });
           break;
         }
@@ -93,39 +99,39 @@ const handleConnections = (socket) => {
         }
 
         case "consume": {
-          const producerIds = getProducersFromStream(msg.data.streamKey);
-          if (!producerIds || !producerIds.length) {
-            return socket
-              .to(msg.data.streamKey)
-              .emit("sfu-error", "No active producers");
-          }
+          const streamKey = msg.data.streamKey;
+          const userIds = getUsersInStream(streamKey);
 
-          for (const producerId of producerIds) {
-            if (
-              getRouters().canConsume({
-                producerId,
-                rtpCapabilities: msg.data.rtpCapabilities,
-              })
-            ) {
-              const consumer = await socket.recvTransport.consume({
-                producerId,
-                rtpCapabilities: msg.data.rtpCapabilities,
-                paused: false,
-              });
+          for (const userId of userIds) {
+            const producerIds = getUserProducers(userId, streamKey);
 
-              console.log(consumer.kind)
+            for (const producerId of producerIds) {
+              if (
+                getRouters().canConsume({
+                  producerId,
+                  rtpCapabilities: msg.data.rtpCapabilities,
+                })
+              ) {
+                const consumer = await socket.recvTransport.consume({
+                  producerId,
+                  rtpCapabilities: msg.data.rtpCapabilities,
+                  paused: false,
+                });
 
-              socket.emit("sfu-message", {
-                action: "consumed",
-                data: {
-                  id: consumer.id,
-                  producerId: consumer.producerId,
-                  kind: consumer.kind,
-                  rtpParameters: consumer.rtpParameters,
-                },
-              });
+                socket.emit("sfu-message", {
+                  action: "consumed",
+                  data: {
+                    id: consumer.id,
+                    producerId: consumer.producerId,
+                    kind: consumer.kind,
+                    rtpParameters: consumer.rtpParameters,
+                    userId
+                  },
+                });
+              }
             }
           }
+
           break;
         }
 

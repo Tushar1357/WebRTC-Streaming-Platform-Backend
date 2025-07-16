@@ -73,7 +73,7 @@ const checkUser = async (req, res) => {
 
     const token = createToken({id: user.id});
 
-    return sendResponse(res, 200, true, "User authenticated.",{token});
+    return sendResponse(res, 200, true, "User authenticated.",{token, name: `${user.first_name} ${user?.last_name}`,userId: user.id});
   } catch (error) {
     console.error("Internal Server Error:", error.message);
     return sendResponse(res, 500, false, "Internal Server Error");
